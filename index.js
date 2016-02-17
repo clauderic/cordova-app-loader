@@ -33,6 +33,7 @@ function AppLoader(options){
   this.newManifest = null;
   this.bundledManifest = null;
   this._lastUpdateFiles = localStorage.getItem('last_update_files');
+  this.xhrOptions = options.xhrOptions;
 
   // normalize serverRoot and set remote manifest url
   options.serverRoot = options.serverRoot || '';
@@ -64,7 +65,7 @@ AppLoader.prototype._createFilemap = function(files){
 
 AppLoader.prototype.copyFromBundle = function(file){
   var url = BUNDLE_ROOT + file;
-  return this.cache._fs.download(url,this.cache.localRoot + file);
+  return this.cache._fs.download(url, null, this.cache.localRoot + file);
 };
 
 AppLoader.prototype.getBundledManifest = function(){
@@ -220,7 +221,7 @@ AppLoader.prototype.download = function(onprogress){
   return self.cache.remove(self._toBeDeleted,true)
     .then(function(){
       return Promise.all(self._toBeCopied.map(function(file){
-        return self.cache._fs.download(BUNDLE_ROOT + file,self.cache.localRoot + file);
+        return self.cache._fs.download(BUNDLE_ROOT + file, self.xhrOptions, self.cache.localRoot + file);
       }));
     })
     .then(function(){
