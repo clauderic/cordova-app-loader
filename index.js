@@ -1,13 +1,12 @@
 var CordovaFileCache = require('cordova-file-cache');
 var CordovaPromiseFS = require('cordova-promise-fs');
 var Promise = null;
+var iOS = Boolean(/ip(hone|ad|od)/i.test(navigator.userAgent));
 
 var BUNDLE_ROOT = location.href.replace(location.hash,'');
 BUNDLE_ROOT = BUNDLE_ROOT.substr(0,BUNDLE_ROOT.lastIndexOf('/')+1);
-if(/ip(hone|ad|od)/i.test(navigator.userAgent)){
-  BUNDLE_ROOT = location.pathname.substr(location.pathname.indexOf('/www/'));
-  BUNDLE_ROOT = BUNDLE_ROOT.substr(0,BUNDLE_ROOT.lastIndexOf('/')+1);
-  BUNDLE_ROOT = 'cdvfile://localhost/bundle' + BUNDLE_ROOT;
+if (iOS){
+  BUNDLE_ROOT = 'cdvfile://localhost/bundle/www/';
 }
 
 function hash(files){
@@ -112,7 +111,7 @@ AppLoader.prototype.check = function(newManifest){
 
         // Prevent end-less update loop, check if new manifest
         // has been downloaded before (but failes)
-        
+
         // Check if the newFiles match the previous files (last_update_files)
         if(newFiles === self._lastUpdateFiles) {
           // YES! So we're doing the same update again!
@@ -189,7 +188,7 @@ AppLoader.prototype.check = function(newManifest){
         if(changes > 0){
           // Save the new Manifest
           self.newManifest = newManifest;
-          self.newManifest.root = self.cache.localInternalURL;
+          self.newManifest.root = (iOS) ? '/Documents/' + self.cache.localRoot : self.cache.localInternalURL; // WKWebView fix
           resolve(true);
         } else {
           resolve(false);
